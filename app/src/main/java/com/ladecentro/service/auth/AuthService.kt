@@ -1,6 +1,6 @@
 package com.ladecentro.service.auth
 
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.model.ErrorResponse
 
 interface AuthService {
     fun success(token: String)

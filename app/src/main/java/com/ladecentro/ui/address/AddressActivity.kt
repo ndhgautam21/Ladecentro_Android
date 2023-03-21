@@ -2,15 +2,16 @@ package com.ladecentro.ui.address
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.ladecentro.R
 import com.ladecentro.adapter.AddressAdapter
 import com.ladecentro.databinding.ActivityAddressBinding
 import com.ladecentro.listener.AddressListener
-import com.ladecentro.model.response.AddressResponse
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.model.AddressResponse
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AddressService
 import com.ladecentro.util.Constants
 import com.ladecentro.util.LoadingDialog
@@ -22,8 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
 
     private lateinit var binding: ActivityAddressBinding
-    private lateinit var viewModel: AddressViewModel
     private lateinit var loadingDialog: LoadingDialog
+    private val viewModel by viewModels<AddressViewModel>()
     private lateinit var adapter: AddressAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,19 +32,14 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_address)
 
         loadingDialog = LoadingDialog(this)
-        viewModel = ViewModelProvider(this)[AddressViewModel::class.java]
         viewModel.addressService = this
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         adapter = AddressAdapter(applicationContext, this)
         binding.addressRecyclerView.adapter = adapter
+        viewModel.getAddresses()
         observer()
         onClickListener()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.getAddresses()
     }
 
     /**
@@ -56,7 +52,7 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
     override fun getAddress(address: AddressResponse) {
         val intent = Intent(applicationContext, AddAddressActivity::class.java)
         intent.putExtra(Constants.AddressId.name, address.id)
-        startActivity(intent)
+        activityResults.launch(intent)
     }
 
     /**
@@ -64,8 +60,8 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
      */
     private fun observer() {
         viewModel.addressesLD.observe(this) { addresses ->
-            val adapter = AddressAdapter(applicationContext, this)
-            binding.addressRecyclerView.adapter = adapter
+//            val adapter = AddressAdapter(applicationContext, this)
+//            binding.addressRecyclerView.adapter = adapter
             adapter.submitList(addresses)
         }
         viewModel.loadingLD.observe(this) {
@@ -77,7 +73,7 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
     private fun onClickListener() {
         binding.fab.setOnClickListener {
             val intent = Intent(applicationContext, AddAddressActivity::class.java)
-            startActivity(intent)
+            activityResults.launch(intent)
         }
         binding.back.setOnClickListener {
             finish()
@@ -93,6 +89,12 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
     override fun error(error: ErrorResponse) {
         runOnUiThread {
             toast(error.message)
+        }
+    }
+
+    private val activityResults = registerForActivityResult(StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            viewModel.getAddresses()
         }
     }
 }

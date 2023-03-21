@@ -161,13 +161,13 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/update_profile"
                             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                             android:layout_width="match_parent"
                             android:layout_height="54dp"
                             android:layout_marginTop="16dp"
                             android:backgroundTint="@color/primary"
                             android:fontFamily="@font/hind_madurai"
-                            android:onClick="@{() -> viewModel.updateProfile()}"
                             android:text="Update"
                             android:textAllCaps="false"
                             app:cornerRadius="12dp" />

@@ -3,7 +3,7 @@ package com.ladecentro.view_model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ladecentro.model.response.AddressResponse
+import com.ladecentro.model.AddressResponse
 import com.ladecentro.repository.AddressRepository
 import com.ladecentro.service.auth.AddressService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +34,13 @@ class AddressViewModel @Inject constructor(
 
     fun deleteAddress(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAddress(id)
+            val job = viewModelScope.launch {
+                repository.deleteAddress(id)
+            }
+            job.join()
+            viewModelScope.launch {
+                repository.getAllAddresses()
+            }
         }
     }
 }

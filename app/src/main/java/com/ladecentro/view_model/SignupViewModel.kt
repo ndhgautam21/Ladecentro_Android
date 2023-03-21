@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ladecentro.model.request.Role
-import com.ladecentro.model.request.SignupRequest
+import com.ladecentro.model.SignupRequest
 import com.ladecentro.repository.AuthRepository
 import com.ladecentro.service.auth.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +28,7 @@ class SignupViewModel @Inject constructor(
     fun signUp() {
         authRepository.service = authService
         val request =
-            SignupRequest(email.value!!, name.value!!, password.value!!, setOf(Role("USER")))
+            SignupRequest(email.value!!, name.value!!, password.value!!, setOf("USER"))
         viewModelScope.launch(Dispatchers.IO) {
             authRepository.signup(request)
         }

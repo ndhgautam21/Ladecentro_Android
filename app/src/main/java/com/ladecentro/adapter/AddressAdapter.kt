@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ladecentro.R
 import com.ladecentro.databinding.SampleAddressBinding
 import com.ladecentro.listener.AddressListener
-import com.ladecentro.model.response.AddressResponse
+import com.ladecentro.model.AddressResponse
 
 class AddressAdapter(
     private val context: Context,

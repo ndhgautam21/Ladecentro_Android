@@ -6,17 +6,21 @@
 
         <variable
             name="address"
-            type="com.ladecentro.model.response.AddressResponse" />
+            type="com.ladecentro.model.AddressResponse" />
     </data>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="0dp"
+        android:backgroundTint="@color/white"
         app:cardCornerRadius="16dp"
+        android:checked="true"
+        android:checkable="true"
+        android:focusable="true"
         app:cardElevation="0dp">
 
         <LinearLayout
@@ -24,27 +28,44 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/house_colour" />
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/icons8_work" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/fredoka_one"
+                        android:text="Work"
+                        android:textColor="#525252"
+                        android:textSize="16sp"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/averia_sans_libre"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/doppio_one"
                     android:text="@{address.name, default = Gautam}"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView

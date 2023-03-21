@@ -2,8 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/home_fragment"
-    android:id="@+id/main_navigation">
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/home_fragment">
 
     <fragment
         android:id="@+id/home_fragment"
@@ -12,18 +12,20 @@
         tools:layout="@layout/fragment_home">
 
     </fragment>
+
+    <fragment
+        android:id="@+id/shop_fragment"
+        android:name="com.ladecentro.ui.shop.ShopFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_shop">
+
+    </fragment>
+
     <fragment
         android:id="@+id/create_fragment"
         android:name="com.ladecentro.ui.home.CreateFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_create">
-
-    </fragment>
-    <fragment
-        android:id="@+id/designer_fragment"
-        android:name="com.ladecentro.ui.profile.ProfileFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_profile">
 
     </fragment>
 

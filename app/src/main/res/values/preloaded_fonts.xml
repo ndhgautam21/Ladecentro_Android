@@ -4,7 +4,11 @@
         <item>@font/amaranth</item>
         <item>@font/andika</item>
         <item>@font/averia_sans_libre</item>
+        <item>@font/doppio_one</item>
+        <item>@font/epilogue_medium</item>
+        <item>@font/fira_mono_medium</item>
         <item>@font/fredoka_one</item>
+        <item>@font/hammersmith_one</item>
         <item>@font/hind_madurai</item>
     </array>
 </resources>

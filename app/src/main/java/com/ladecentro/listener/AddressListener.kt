@@ -1,6 +1,6 @@
 package com.ladecentro.listener
 
-import com.ladecentro.model.response.AddressResponse
+import com.ladecentro.model.AddressResponse
 
 interface AddressListener {
 

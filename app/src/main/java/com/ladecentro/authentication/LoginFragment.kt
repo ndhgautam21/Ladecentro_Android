@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputLayout
 import com.ladecentro.R
 import com.ladecentro.databinding.FragmentLoginBinding
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AuthService
 import com.ladecentro.ui.home.HomeActivity
 import com.ladecentro.util.Constants
@@ -28,8 +28,8 @@ import javax.inject.Inject
 class LoginFragment : Fragment(), AuthService {
 
     private lateinit var binding: FragmentLoginBinding
-    private lateinit var loginViewModel: LoginViewModel
     private lateinit var loadingDialog: LoadingDialog
+    private val viewModel by viewModels<LoginViewModel>()
 
     @Inject
     lateinit var myPreference: MyPreference
@@ -41,13 +41,12 @@ class LoginFragment : Fragment(), AuthService {
     ): View {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_login, container, false)
 
-        loginViewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
-        loginViewModel.authService = this
+        viewModel.authService = this
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = loginViewModel
+        binding.viewModel = viewModel
         loadingDialog = LoadingDialog(requireActivity())
 
-        loginViewModel.loading.observe(viewLifecycleOwner) {
+        viewModel.loading.observe(viewLifecycleOwner) {
             if (it) loadingDialog.startLoading()
             else loadingDialog.stopLoading()
         }
@@ -55,7 +54,7 @@ class LoginFragment : Fragment(), AuthService {
         binding.email.editText?.addTextChangedListener(object : InputValidation(binding.email) {
 
             override fun validate(textInputLayout: TextInputLayout, text: String) {
-                loginViewModel.errorEmail.postValue(!validEmail(text))
+                viewModel.errorEmail.postValue(!validEmail(text))
                 textInputLayout.error = if (validEmail(text)) null else "Invalid email"
             }
         })
@@ -64,7 +63,7 @@ class LoginFragment : Fragment(), AuthService {
             InputValidation(binding.password) {
 
             override fun validate(textInputLayout: TextInputLayout, text: String) {
-                loginViewModel.errorPassword.postValue(!validName(text))
+                viewModel.errorPassword.postValue(!validName(text))
                 textInputLayout.error = if (validName(text)) null else "Invalid email"
             }
         })

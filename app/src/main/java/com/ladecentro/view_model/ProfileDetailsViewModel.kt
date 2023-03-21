@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ladecentro.model.request.ProfileUpdateRequest
-import com.ladecentro.model.response.User
+import com.ladecentro.listener.NetworkCallback
+import com.ladecentro.model.ProfileUpdateRequest
+import com.ladecentro.model.User
 import com.ladecentro.repository.ProfileRepository
-import com.ladecentro.service.auth.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,8 +19,6 @@ class ProfileDetailsViewModel @Inject constructor(
     private val repository: ProfileRepository
 ) : ViewModel() {
 
-    lateinit var authService: AuthService
-
     val loadingLD: LiveData<Boolean>
         get() = repository.loadingLD
 
@@ -31,20 +29,19 @@ class ProfileDetailsViewModel @Inject constructor(
     val image = MutableLiveData<String?>()
     val errorEnable = MutableLiveData(false)
 
-    fun getUserDetails() {
-        repository.service = authService
+    fun getUserDetails(callback: NetworkCallback) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getUserDetails()
+            repository.getUserDetails(callback)
         }
     }
 
-    fun updateProfile() {
+    fun updateProfile(callback: NetworkCallback) {
         if (errorEnable.value!!) {
             return
         }
         val request = ProfileUpdateRequest(name = name.value!!)
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateProfile(request)
+            repository.updateProfile(callback, request)
         }
     }
 
@@ -53,9 +50,9 @@ class ProfileDetailsViewModel @Inject constructor(
         image.postValue(user.profile_image?.data)
     }
 
-    fun updateProfileImage(part: Part?) {
+    fun updateProfileImage(callback: NetworkCallback, part: Part?) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateProfileImage(part)
+            repository.updateProfileImage(callback, part)
         }
     }
 }

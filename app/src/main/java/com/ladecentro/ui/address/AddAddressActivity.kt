@@ -1,12 +1,12 @@
 package com.ladecentro.ui.address
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.ladecentro.R
 import com.ladecentro.databinding.ActivityAddAddressBinding
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AddressService
 import com.ladecentro.util.Constants
 import com.ladecentro.util.LoadingDialog
@@ -18,8 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class AddAddressActivity : AppCompatActivity(), AddressService {
 
     private lateinit var binding: ActivityAddAddressBinding
-    private lateinit var viewModel: AddAddressViewModel
     private lateinit var loadingDialog: LoadingDialog
+    private val viewModel by viewModels<AddAddressViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +28,6 @@ class AddAddressActivity : AppCompatActivity(), AddressService {
         if (addressId == null) {
             addressId = ""
         }
-        viewModel = ViewModelProvider(this)[AddAddressViewModel::class.java]
         viewModel.addressService = this
         viewModel.addressId = addressId
         binding.lifecycleOwner = this
@@ -63,6 +62,7 @@ class AddAddressActivity : AppCompatActivity(), AddressService {
     override fun success(message: String) {
         runOnUiThread {
             toast(message)
+            setResult(RESULT_OK)
             finish()
         }
     }

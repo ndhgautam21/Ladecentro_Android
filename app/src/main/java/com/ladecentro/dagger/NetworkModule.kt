@@ -1,9 +1,10 @@
 package com.ladecentro.dagger
 
 import com.google.gson.GsonBuilder
-import com.ladecentro.api.AddressRequest
-import com.ladecentro.api.AuthRequest
-import com.ladecentro.api.ProfileRequest
+import com.ladecentro.network.AddressApi
+import com.ladecentro.network.AuthApi
+import com.ladecentro.network.ProductApi
+import com.ladecentro.network.ProfileApi
 import com.ladecentro.util.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit() : Retrofit {
+    fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
@@ -28,19 +29,25 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthAPI(retrofit: Retrofit) : AuthRequest {
-        return retrofit.create(AuthRequest::class.java)
+    fun provideAuthAPI(retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideProfileAPI(retrofit: Retrofit) : ProfileRequest {
-        return retrofit.create(ProfileRequest::class.java)
+    fun provideProfileAPI(retrofit: Retrofit): ProfileApi {
+        return retrofit.create(ProfileApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideAddressAPI(retrofit: Retrofit) : AddressRequest {
-        return retrofit.create(AddressRequest::class.java)
+    fun provideAddressAPI(retrofit: Retrofit): AddressApi {
+        return retrofit.create(AddressApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductAPI(retrofit: Retrofit): ProductApi {
+        return retrofit.create(ProductApi::class.java)
     }
 }

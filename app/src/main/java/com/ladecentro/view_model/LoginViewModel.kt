@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ladecentro.model.request.LoginRequest
+import com.ladecentro.model.LoginRequest
 import com.ladecentro.repository.AuthRepository
 import com.ladecentro.service.auth.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel

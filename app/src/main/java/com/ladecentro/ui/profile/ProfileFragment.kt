@@ -1,18 +1,20 @@
 package com.ladecentro.ui.profile
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.ladecentro.R
 import com.ladecentro.authentication.AuthActivity
 import com.ladecentro.databinding.FragmentProfileBinding
-import com.ladecentro.model.response.ErrorResponse
-import com.ladecentro.service.auth.AuthService
+import com.ladecentro.listener.NetworkCallback
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.ui.address.AddressActivity
 import com.ladecentro.util.Constants
 import com.ladecentro.util.LoadingDialog
@@ -23,11 +25,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ProfileFragment : Fragment(), AuthService {
+class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
-    private lateinit var viewModel: ProfileViewModel
     private lateinit var loadingDialog: LoadingDialog
+    private val viewModel by viewModels<ProfileViewModel>()
 
     @Inject
     lateinit var myPreference: MyPreference
@@ -39,20 +41,30 @@ class ProfileFragment : Fragment(), AuthService {
     ): View {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
-
-        viewModel = ViewModelProvider(requireActivity())[ProfileViewModel::class.java]
-        viewModel.authService = this
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         loadingDialog = LoadingDialog(requireActivity())
+        callGetUserDetails()
         observer()
         onClickListener()
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.getUserDetails()
+    private fun callGetUserDetails() {
+
+        viewModel.getUserDetails(object : NetworkCallback {
+            override fun onSuccess(message: String) {
+                activity?.runOnUiThread {
+                    requireActivity().toast(message)
+                }
+            }
+
+            override fun onError(error: ErrorResponse) {
+                activity?.runOnUiThread {
+                    requireActivity().toast(error.message)
+                }
+            }
+        })
     }
 
     /**
@@ -71,7 +83,7 @@ class ProfileFragment : Fragment(), AuthService {
     private fun onClickListener() {
 
         binding.accountDetails.setOnClickListener {
-            startActivity(Intent(requireContext(), ProfileDetailsActivity::class.java))
+            activityResults.launch(Intent(requireContext(), ProfileDetailsActivity::class.java))
         }
         binding.addresses.setOnClickListener {
             startActivity(Intent(requireContext(), AddressActivity::class.java))
@@ -84,15 +96,13 @@ class ProfileFragment : Fragment(), AuthService {
         }
     }
 
-    override fun success(token: String) {
-        activity?.runOnUiThread {
-            requireActivity().toast(token)
-        }
-    }
-
-    override fun error(error: ErrorResponse) {
-        activity?.runOnUiThread {
-            requireActivity().toast(error.message)
+    /**
+     * after finishing profile details activity
+     * launch this activity contract
+     */
+    private val activityResults = registerForActivityResult(StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            callGetUserDetails()
         }
     }
 }

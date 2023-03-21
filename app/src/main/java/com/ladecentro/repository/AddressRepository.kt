@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.ladecentro.api.AddressRequest
-import com.ladecentro.model.request.CreateAddressRequest
-import com.ladecentro.model.response.AddressResponse
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.network.AddressApi
+import com.ladecentro.model.CreateAddressRequest
+import com.ladecentro.model.AddressResponse
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AddressService
 import com.ladecentro.util.Constants
 import com.ladecentro.util.MyPreference
@@ -15,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 class AddressRepository @Inject constructor(
-    private val request: AddressRequest,
+    private val request: AddressApi,
     private val myPreference: MyPreference
 ) {
     lateinit var addressService: AddressService
@@ -135,7 +135,6 @@ class AddressRepository @Inject constructor(
             val response = request.deleteAddress(token, id)
             if (response.isSuccessful) {
                 addressService.success(DELETE_MESSAGE)
-                getAllAddresses()
             } else {
                 val errorResponse: ErrorResponse =
                     Gson().fromJson(response.errorBody()?.charStream(), ErrorResponse::class.java)

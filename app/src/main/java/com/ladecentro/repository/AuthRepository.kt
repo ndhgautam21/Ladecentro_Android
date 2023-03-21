@@ -4,16 +4,16 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.ladecentro.api.AuthRequest
-import com.ladecentro.model.request.LoginRequest
-import com.ladecentro.model.request.SignupRequest
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.network.AuthApi
+import com.ladecentro.model.LoginRequest
+import com.ladecentro.model.SignupRequest
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AuthService
 import java.util.*
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
-    private val authRequest: AuthRequest
+    private val authApi: AuthApi
 ) {
     lateinit var service: AuthService
 
@@ -27,7 +27,7 @@ class AuthRepository @Inject constructor(
     suspend fun signup(request: SignupRequest) {
         loadingMLD.postValue(true)
         try {
-            val response = authRequest.signup(request)
+            val response = authApi.signup(request)
             if (response.isSuccessful) {
                 service.success(response.body()!!)
             } else {
@@ -49,7 +49,7 @@ class AuthRepository @Inject constructor(
     suspend fun login(request: LoginRequest) {
         loadingMLD.postValue(true)
         try {
-            val response = authRequest.login(request)
+            val response = authApi.login(request)
             if (response.isSuccessful) {
                 service.success(response.body()!!)
             } else {

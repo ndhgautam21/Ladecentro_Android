@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ladecentro.model.request.CreateAddressRequest
+import com.ladecentro.model.CreateAddressRequest
 import com.ladecentro.repository.AddressRepository
 import com.ladecentro.service.auth.AddressService
 import dagger.hilt.android.lifecycle.HiltViewModel

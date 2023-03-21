@@ -83,4 +83,7 @@ dependencies {
     implementation(platform("com.squareup.okhttp3:okhttp-bom:$okhttp_version"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    def paging_version = "3.1.1"
+    implementation "androidx.paging:paging-runtime-ktx:3.1.1"
 }

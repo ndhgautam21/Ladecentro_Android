@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.ladecentro.R
 import com.ladecentro.databinding.FragmentSignupBinding
-import com.ladecentro.model.response.ErrorResponse
+import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AuthService
 import com.ladecentro.ui.home.HomeActivity
 import com.ladecentro.util.Constants
@@ -27,8 +27,8 @@ class SignupFragment : Fragment(), AuthService {
 
     private var mBinding: FragmentSignupBinding? = null
     private val binding: FragmentSignupBinding get() = mBinding!!
-    private lateinit var signupViewModel: SignupViewModel
     private lateinit var loadingDialog: LoadingDialog
+    private val viewModel by viewModels<SignupViewModel>()
 
     @Inject
     lateinit var myPreference: MyPreference
@@ -39,16 +39,14 @@ class SignupFragment : Fragment(), AuthService {
         savedInstanceState: Bundle?
     ): View {
 
-        mBinding =
-            DataBindingUtil.inflate(layoutInflater, R.layout.fragment_signup, container, false)
-        signupViewModel = ViewModelProvider(requireActivity())[SignupViewModel::class.java]
+        mBinding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_signup, container, false)
 
-        signupViewModel.authService = this
+        viewModel.authService = this
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = signupViewModel
+        binding.viewModel = viewModel
         loadingDialog = LoadingDialog(requireActivity())
 
-        signupViewModel.loadingLD.observe(viewLifecycleOwner) {
+        viewModel.loadingLD.observe(viewLifecycleOwner) {
             if (it) loadingDialog.startLoading()
             else loadingDialog.stopLoading()
         }

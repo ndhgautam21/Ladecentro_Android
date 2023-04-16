@@ -47,7 +47,7 @@ interface AddressApi {
         @Header("x-auth-token") token: String,
         @Body address: CreateAddressRequest,
         @Path("id") id: String
-    ): Response<Objects>
+    ): Response<AddressResponse>
 
     /**
      *

@@ -1,5 +1,6 @@
 package com.ladecentro.network
 
+import com.ladecentro.model.Category
 import com.ladecentro.model.ProductPageable
 import retrofit2.Response
 import retrofit2.http.GET
@@ -13,4 +14,9 @@ interface ProductApi {
         @Query("page_number") pageNo: Int,
         @Header("x-auth-token") token: String
     ): Response<ProductPageable>
+
+    @GET("/category/get")
+    suspend fun getCategories(
+        @Header("x-auth-token") token: String
+    ): Response<List<Category>>
 }

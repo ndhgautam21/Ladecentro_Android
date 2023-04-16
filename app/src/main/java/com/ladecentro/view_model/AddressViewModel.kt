@@ -1,46 +1,41 @@
 package com.ladecentro.view_model
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ladecentro.listener.UIState
 import com.ladecentro.model.AddressResponse
 import com.ladecentro.repository.AddressRepository
-import com.ladecentro.service.auth.AddressService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class AddressViewModel @Inject constructor(
     private val repository: AddressRepository
-) :
-    ViewModel() {
+) : ViewModel() {
 
-    val loadingLD: LiveData<Boolean>
-        get() = repository.loadingLD
+    private val _addresses =
+        MutableStateFlow<UIState<MutableList<AddressResponse>>>(UIState.Loading)
+    val addresses: StateFlow<UIState<MutableList<AddressResponse>>>
+        get() = _addresses
 
-    val addressesLD: LiveData<MutableList<AddressResponse>>
-        get() = repository.addressesLD
-
-    lateinit var addressService: AddressService
+    init {
+        getAddresses()
+    }
 
     fun getAddresses() {
-        repository.addressService = addressService
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllAddresses()
+        viewModelScope.launch {
+            repository.getAllAddresses().flowOn(Dispatchers.IO).collect { _addresses.value = it }
         }
     }
 
-    fun deleteAddress(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val job = viewModelScope.launch {
-                repository.deleteAddress(id)
-            }
-            job.join()
-            viewModelScope.launch {
-                repository.getAllAddresses()
-            }
-        }
+    fun deleteAddress(id: String): Flow<UIState<Objects>> {
+        return repository.deleteAddress(id).flowOn(Dispatchers.IO)
     }
 }

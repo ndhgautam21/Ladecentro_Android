@@ -6,21 +6,24 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.ladecentro.R
 import com.ladecentro.adapter.AddressAdapter
 import com.ladecentro.databinding.ActivityAddressBinding
 import com.ladecentro.listener.AddressListener
+import com.ladecentro.listener.UIState
 import com.ladecentro.model.AddressResponse
-import com.ladecentro.model.ErrorResponse
-import com.ladecentro.service.auth.AddressService
 import com.ladecentro.util.Constants
 import com.ladecentro.util.LoadingDialog
 import com.ladecentro.util.toast
 import com.ladecentro.view_model.AddressViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
+class AddressActivity : AppCompatActivity(), AddressListener {
 
     private lateinit var binding: ActivityAddressBinding
     private lateinit var loadingDialog: LoadingDialog
@@ -30,23 +33,40 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_address)
+        setUpUI()
+        setUpObserver()
+        setUpOnClickListener()
+    }
 
+    private fun setUpUI() {
         loadingDialog = LoadingDialog(this)
-        viewModel.addressService = this
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         adapter = AddressAdapter(applicationContext, this)
         binding.addressRecyclerView.adapter = adapter
-        viewModel.getAddresses()
-        observer()
-        onClickListener()
     }
 
     /**
      *
      */
     override fun deleteAddress(address: AddressResponse) {
-        viewModel.deleteAddress(address.id!!)
+        lifecycleScope.launch {
+            viewModel.deleteAddress(address.id!!).collect {
+                when (it) {
+                    is UIState.Loading -> {
+                        loadingDialog.startLoading()
+                    }
+                    is UIState.Success -> {
+                        loadingDialog.stopLoading()
+                        toast("Deleted successfully !!")
+                        viewModel.getAddresses()
+                    }
+                    is UIState.Error -> {
+                        loadingDialog.stopLoading()
+                    }
+                }
+            }
+        }
     }
 
     override fun getAddress(address: AddressResponse) {
@@ -58,19 +78,29 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
     /**
      *
      */
-    private fun observer() {
-        viewModel.addressesLD.observe(this) { addresses ->
-//            val adapter = AddressAdapter(applicationContext, this)
-//            binding.addressRecyclerView.adapter = adapter
-            adapter.submitList(addresses)
-        }
-        viewModel.loadingLD.observe(this) {
-            if (it) loadingDialog.startLoading()
-            else loadingDialog.stopLoading()
+    private fun setUpObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.addresses.collect {
+                    when (it) {
+                        is UIState.Loading -> {
+                            loadingDialog.startLoading()
+                        }
+                        is UIState.Success -> {
+                            adapter.submitList(it.data)
+                            loadingDialog.stopLoading()
+                        }
+                        is UIState.Error -> {
+                            toast(it.errorResponse)
+                            loadingDialog.stopLoading()
+                        }
+                    }
+                }
+            }
         }
     }
 
-    private fun onClickListener() {
+    private fun setUpOnClickListener() {
         binding.fab.setOnClickListener {
             val intent = Intent(applicationContext, AddAddressActivity::class.java)
             activityResults.launch(intent)
@@ -80,20 +110,8 @@ class AddressActivity : AppCompatActivity(), AddressListener, AddressService {
         }
     }
 
-    override fun success(message: String) {
-        runOnUiThread {
-            toast(message)
-        }
-    }
-
-    override fun error(error: ErrorResponse) {
-        runOnUiThread {
-            toast(error.message)
-        }
-    }
-
-    private val activityResults = registerForActivityResult(StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
+    private val activityResults = registerForActivityResult(StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
             viewModel.getAddresses()
         }
     }

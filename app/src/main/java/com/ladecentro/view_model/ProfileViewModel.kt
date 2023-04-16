@@ -7,6 +7,7 @@ import com.ladecentro.listener.NetworkCallback
 import com.ladecentro.model.User
 import com.ladecentro.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +24,7 @@ class ProfileViewModel @Inject constructor(private val repository: ProfileReposi
 
     fun getUserDetails(callback: NetworkCallback) {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getUserDetails(callback)
         }
     }

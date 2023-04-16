@@ -33,6 +33,13 @@ data class AddressResponse(
     val phone_no: String
 )
 
+data class Category(
+    val _id: String,
+    val name: String,
+    val image: String,
+    val parent_id: String
+)
+
 /**
  * product
  */

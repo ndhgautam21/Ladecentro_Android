@@ -5,9 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
-import com.ladecentro.databinding.PagingLoaderBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.ladecentro.util.LoadingDialog
+import com.ladecentro.databinding.PagingLoaderBinding
 
 class ProductLoadingAdapter : LoadStateAdapter<ProductLoadingAdapter.ViewHolder>() {
 

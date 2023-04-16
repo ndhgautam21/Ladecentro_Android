@@ -260,13 +260,12 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/save_address"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
                     android:layout_margin="12dp"
                     android:backgroundTint="@color/primary"
-                    android:enabled="@{!viewModel.loadingLD}"
                     android:fontFamily="@font/hind_madurai"
-                    android:onClick="@{() -> viewModel.saveAddress()}"
                     android:text="@{viewModel.isCreate, default = Address}"
                     android:textAllCaps="false"
                     app:cornerRadius="10dp" />

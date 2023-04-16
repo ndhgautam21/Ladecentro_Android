@@ -1,5 +1,6 @@
 package com.ladecentro.ui.shop
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,13 +12,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ladecentro.R
+import com.ladecentro.adapter.CategoryAdapter
 import com.ladecentro.adapter.ProductPageAdapter
 import com.ladecentro.databinding.FragmentShopBinding
+import com.ladecentro.listener.UIState
 import com.ladecentro.paging.ProductLoadingAdapter
 import com.ladecentro.util.LoadingDialog
+import com.ladecentro.util.toast
 import com.ladecentro.view_model.ShopViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +34,9 @@ class ShopFragment : Fragment() {
 
     @Inject
     lateinit var adapter: ProductPageAdapter
+
+    @Inject
+    lateinit var categoryAdapter: CategoryAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +55,10 @@ class ShopFragment : Fragment() {
     private fun setUpUI() {
         loadingDialog = LoadingDialog(requireActivity())
         binding.productRv.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding.categoryRv.layoutManager = GridLayoutManager(requireContext(), 3)
 
+        binding.categoryRv.adapter = categoryAdapter
+        // setting adapter with the loading in header and footer
         binding.productRv.adapter = adapter
             .withLoadStateHeaderAndFooter(
                 header = ProductLoadingAdapter(),
@@ -57,6 +66,8 @@ class ShopFragment : Fragment() {
             )
 
         adapter.addLoadStateListener {
+            // add custom load state for
+            // initial product loading
             if (it.source.refresh is LoadState.Loading) loadingDialog.startLoading() else loadingDialog.stopLoading()
         }
     }
@@ -67,6 +78,27 @@ class ShopFragment : Fragment() {
             viewModel.uiState.collectLatest {
                 adapter.submitData(it)
             }
+        }
+
+        lifecycleScope.launch {
+            viewModel.categoryUiState.collect {
+                when(it) {
+                    is UIState.Loading -> {
+                        loadingDialog.startLoading()
+                    }
+                    is UIState.Success -> {
+                        categoryAdapter.submitList(it.data)
+                        loadingDialog.stopLoading()
+                    }
+                    is UIState.Error -> {
+                        activity?.toast(it.errorResponse)
+                    }
+                }
+            }
+        }
+
+        binding.bannerProduct.setOnClickListener {
+            startActivity(Intent(requireActivity(), ProductActivity::class.java))
         }
     }
 }

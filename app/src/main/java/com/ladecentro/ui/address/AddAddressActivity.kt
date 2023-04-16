@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.ladecentro.R
 import com.ladecentro.databinding.ActivityAddAddressBinding
+import com.ladecentro.listener.UIState
 import com.ladecentro.model.ErrorResponse
 import com.ladecentro.service.auth.AddressService
 import com.ladecentro.util.Constants
@@ -13,9 +15,10 @@ import com.ladecentro.util.LoadingDialog
 import com.ladecentro.util.toast
 import com.ladecentro.view_model.AddAddressViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AddAddressActivity : AppCompatActivity(), AddressService {
+class AddAddressActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddAddressBinding
     private lateinit var loadingDialog: LoadingDialog
@@ -28,48 +31,57 @@ class AddAddressActivity : AppCompatActivity(), AddressService {
         if (addressId == null) {
             addressId = ""
         }
-        viewModel.addressService = this
         viewModel.addressId = addressId
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         loadingDialog = LoadingDialog(this)
-        observer()
+
+        if (addressId.isNotBlank()) {
+            lifecycleScope.launch {
+                viewModel.getAddress(addressId).collect {
+                    when (it) {
+                        is UIState.Loading -> {
+                            loadingDialog.startLoading()
+                        }
+                        is UIState.Success -> {
+                            viewModel.setAddressValue(it.data)
+                            loadingDialog.stopLoading()
+                        }
+                        is UIState.Error -> {
+                            toast(it.errorResponse)
+                            loadingDialog.stopLoading()
+                        }
+                    }
+                }
+            }
+        }
         onClickListener()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.getAddress()
-    }
-
-    private fun observer() {
-        viewModel.loadingLD.observe(this) {
-            if (it) loadingDialog.startLoading()
-            else loadingDialog.stopLoading()
-        }
-
-        viewModel.addressLD.observe(this) {
-            viewModel.setAddressValue(it)
-        }
     }
 
     private fun onClickListener() {
         binding.back.setOnClickListener {
             finish()
         }
-    }
-
-    override fun success(message: String) {
-        runOnUiThread {
-            toast(message)
-            setResult(RESULT_OK)
-            finish()
-        }
-    }
-
-    override fun error(error: ErrorResponse) {
-        runOnUiThread {
-            toast(error.message)
+        binding.saveAddress.setOnClickListener {
+            lifecycleScope.launch {
+                viewModel.createAddress.collect {
+                    when (it) {
+                        is UIState.Loading -> {
+                            loadingDialog.startLoading()
+                        }
+                        is UIState.Success -> {
+                            toast("created successfully!!")
+                            loadingDialog.stopLoading()
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+                        is UIState.Error -> {
+                            toast(it.errorResponse)
+                            loadingDialog.stopLoading()
+                        }
+                    }
+                }
+            }
         }
     }
 }

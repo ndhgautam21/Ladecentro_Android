@@ -9,16 +9,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_margin="8dp"
         android:gravity="center">
 
-        <com.github.ybq.android.spinkit.SpinKitView
-            android:id="@+id/spin_kit"
-            style="@style/SpinKitView.Large.Wave"
+<!--        <com.github.ybq.android.spinkit.SpinKitView-->
+<!--            android:id="@+id/spin_kit"-->
+<!--            style="@style/SpinKitView.Large.Wave"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="32dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:SpinKit_Color="@color/primary" />-->
+
+        <com.airbnb.lottie.LottieAnimationView
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_gravity="center"
-            app:SpinKit_Color="@color/primary" />
+            android:layout_height="80dp"
+            app:lottie_autoPlay="true"
+            app:lottie_speed="1"
+            app:lottie_repeatMode="restart"
+            app:lottie_repeatCount="1000"
+            app:lottie_fileName="lottie_loading_blue.json"
+            />
 
 <!--        <TextView-->
 <!--            android:layout_width="0dp"-->
